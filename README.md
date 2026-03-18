@@ -16,7 +16,7 @@ Get real-time audio notifications for every Claude Code event — session start,
 ## Installation
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/yourusername/claude-sounds-config/main/install.sh)
+bash <(curl -s https://raw.githubusercontent.com/UlisesTame/claude_hooks_sound_experiences/main/install.sh)
 ```
 
 That's it! Restart Claude Code and you'll hear sounds for every event.
@@ -48,9 +48,12 @@ Example to change volume:
 | File | Event |
 |------|-------|
 | `start_claude_sound.wav` | Session initialized |
-| `claude_finished_task_01.wav` | Claude finished responding |
+| `claude_finished_task_01.wav` | Claude finished responding (variant 1) |
+| `claude_finished_task_02.wav` | Claude finished responding (variant 2) |
+| `claude_finished_task:03.wav` | Claude finished responding (variant 3) |
 | `notification_user_input.wav` | Waiting for user input/approval |
 | `tool_call_failed.wav` | Tool execution failed |
+| `error.wav` | Error occurred |
 | `compact_claude_session.wav` | Context being compacted |
 | `sub-starts.wav` | Subagent spawned |
 | `sub-ready.wav` | Subagent finished |
