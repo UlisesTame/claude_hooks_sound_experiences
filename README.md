@@ -54,7 +54,7 @@ Example to change volume:
 | `start_claude_sound.wav` | Session initialized |
 | `claude_finished_task_01.wav` | Claude finished responding (variant 1) |
 | `claude_finished_task_02.wav` | Claude finished responding (variant 2) |
-| `claude_finished_task:03.wav` | Claude finished responding (variant 3) |
+| `claude_finished_task_03.wav` | Claude finished responding (variant 3) |
 | `notification_user_input.wav` | Waiting for user input/approval |
 | `tool_call_failed.wav` | Tool execution failed |
 | `error.wav` | Error occurred |
