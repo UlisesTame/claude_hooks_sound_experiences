@@ -30,6 +30,10 @@ The installer:
 
 Your existing settings are preserved — only hooks are merged.
 
+## Documentation
+
+For more information about Claude Code hooks, see the official documentation at [https://code.claude.com/docs/en/hooks](https://code.claude.com/docs/en/hooks)
+
 ## Customization
 
 Edit `~/.claude/settings.json` to:
