@@ -1,17 +1,11 @@
-# Claude Sounds Config
+# Claude Code Config
 
-Get real-time audio notifications for every Claude Code event — session start, permission requests, errors, and more.
+My portable Claude Code setup — carry the same environment to any machine with one command.
 
-## Features
+Two components today:
 
-🔊 **Complete Sound Coverage:**
-- **Session Start** — Claude Code initialized
-- **Stop** — Claude finished responding
-- **Permission Request** — Waiting for tool approval
-- **Elicitation** — MCP server needs input
-- **Tool Failure** — Tool call failed/errored
-- **Context Compacting** — Context window being compacted
-- **Subagent Events** — Subagent starting/stopping
+- 🔊 **Sounds** — audio notifications for every Claude Code event
+- 📊 **Status line** — a two-line bottom bar with model, cost, timing, rate limits, and context usage
 
 ## Installation
 
@@ -19,35 +13,33 @@ Get real-time audio notifications for every Claude Code event — session start,
 bash <(curl -s https://raw.githubusercontent.com/UlisesTame/claude_hooks_sound_experiences/main/install.sh)
 ```
 
-That's it! Restart Claude Code and you'll hear sounds for every event.
+Restart Claude Code and you're set.
 
-## What It Does
+Install just one component:
 
-The installer:
-1. Creates `~/.claude/sounds/` directory
-2. Copies all `.wav` sound files
-3. Merges hook configuration into `~/.claude/settings.json`
-
-Your existing settings are preserved — only hooks are merged.
-
-## Documentation
-
-For more information about Claude Code hooks, see the official documentation at [https://code.claude.com/docs/en/hooks](https://code.claude.com/docs/en/hooks)
-
-## Customization
-
-Edit `~/.claude/settings.json` to:
-- Change sound file paths
-- Adjust volume with `-v` flag (0.0-1.0)
-- Enable/disable specific hooks
-- Add your own sounds
-
-Example to change volume:
-```json
-"command": "afplay -v 0.3 ~/.claude/sounds/start_claude_sound.wav"
+```bash
+bash <(curl -s .../install.sh) --sounds-only
+bash <(curl -s .../install.sh) --statusline-only
 ```
 
-## Sound Files
+Your existing settings are preserved — the installer only merges in the keys it owns.
+
+## Status Line
+
+```
+📁 my-project | 🌿 main | [Opus 5 (1M context)] | 💰 $0.2344 | ⏱️ 0m 21s | 🔑 my-sess
+⚡ 5hr limit: 0% | 📅 weekly limit: 1% | ctx: ▓▓▓▓▓▓▓░░░░░░░░░░ 42%
+```
+
+**Line 1** — directory, git branch (omitted outside a repo), model, session cost, elapsed time, session name.
+
+**Line 2** — rate limit usage (shown only when the data is available) and a context-window bar that shifts green → yellow (36%) → red (66%).
+
+Requires [`jq`](https://jqlang.github.io/jq/) (`brew install jq`).
+
+The script lives at `~/.claude/statusline.sh` — edit it freely to change the segments, bar width, or color thresholds. See the [status line docs](https://code.claude.com/docs/en/statusline).
+
+## Sounds
 
 | File | Event |
 |------|-------|
@@ -63,17 +55,33 @@ Example to change volume:
 | `sub-ready.wav` | Subagent finished |
 | `session_end.wav` | Session ended |
 
+Sound files are copied to `~/.claude/sounds/` and wired up as hooks. Edit `~/.claude/settings.json` to change paths, swap in your own sounds, adjust volume with the `-v` flag (0.0–1.0), or disable individual hooks:
+
+```json
+"command": "afplay -v 0.3 ~/.claude/sounds/start_claude_sound.wav"
+```
+
+See the [hooks docs](https://code.claude.com/docs/en/hooks) for the full event list.
+
 ## Troubleshooting
 
-**No sound in terminal?**
-- Sounds play through system audio, not terminal output
-- Check system volume settings
-- Test: `afplay ~/.claude/sounds/start_claude_sound.wav`
-
-**Sounds not playing?**
+**No sound?**
+- Sounds play through system audio, not terminal output — check system volume
 - Verify files exist: `ls ~/.claude/sounds/`
-- Check settings.json syntax: `cat ~/.claude/settings.json | python -m json.tool`
+- Test directly: `afplay ~/.claude/sounds/start_claude_sound.wav`
+
+**Status line blank or broken?**
+- Confirm `jq` is installed: `command -v jq`
+- Test it directly: `echo '{}' | ~/.claude/statusline.sh`
+- Make sure it's executable: `chmod +x ~/.claude/statusline.sh`
+
+**Either not applying?**
+- Check settings syntax: `python3 -m json.tool ~/.claude/settings.json`
 - Restart Claude Code
+
+## Platform
+
+macOS. Sounds use `afplay`; swap in `paplay`/`aplay` (Linux) to port them. The status line is portable.
 
 ## License
 
