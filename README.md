@@ -1,8 +1,8 @@
-# Claude Code Config
+# Enhanced Experience for Claude Code
 
-My portable Claude Code setup — carry the same environment to any machine with one command.
+A portable configuration layer that makes Claude Code more responsive to work with — you *hear* what it's doing and *see* where you stand, without watching the transcript.
 
-Two components today:
+Install it on any machine and your setup comes with you.
 
 - 🔊 **Sounds** — audio notifications for every Claude Code event
 - 📊 **Status line** — a two-line bottom bar with model, cost, timing, rate limits, and context usage
@@ -10,19 +10,24 @@ Two components today:
 ## Installation
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/UlisesTame/claude_hooks_sound_experiences/main/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/ulisestame/Enhanced-Experience-Claude-Code/main/install.sh)
 ```
 
 Restart Claude Code and you're set.
 
-Install just one component:
+Install a single component:
 
 ```bash
-bash <(curl -s .../install.sh) --sounds-only
-bash <(curl -s .../install.sh) --statusline-only
+# sounds only
+bash <(curl -fsSL https://raw.githubusercontent.com/ulisestame/Enhanced-Experience-Claude-Code/main/install.sh) --sounds-only
+
+# status line only
+bash <(curl -fsSL https://raw.githubusercontent.com/ulisestame/Enhanced-Experience-Claude-Code/main/install.sh) --statusline-only
 ```
 
-Your existing settings are preserved — the installer only merges in the keys it owns.
+Your existing settings are preserved — the installer only merges in the keys it owns (`hooks` and `statusLine`). Everything else in `~/.claude/settings.json` is left untouched.
+
+Prefer to read before you run? The installer is a single readable [`install.sh`](install.sh) — clone the repo and run it locally instead.
 
 ## Status Line
 
@@ -37,7 +42,7 @@ Your existing settings are preserved — the installer only merges in the keys i
 
 Requires [`jq`](https://jqlang.github.io/jq/) (`brew install jq`).
 
-The script lives at `~/.claude/statusline.sh` — edit it freely to change the segments, bar width, or color thresholds. See the [status line docs](https://code.claude.com/docs/en/statusline).
+The script installs to `~/.claude/statusline.sh` — edit it freely to change segments, bar width, or color thresholds. See the [status line docs](https://code.claude.com/docs/en/statusline).
 
 ## Sounds
 
@@ -81,8 +86,17 @@ See the [hooks docs](https://code.claude.com/docs/en/hooks) for the full event l
 
 ## Platform
 
-macOS. Sounds use `afplay`; swap in `paplay`/`aplay` (Linux) to port them. The status line is portable.
+Built and tested on macOS. Sounds use `afplay`; swapping in `paplay` or `aplay` ports them to Linux. The status line is portable as-is.
+
+## Contributing
+
+Issues and pull requests are welcome — new sound themes, status line variants, and additional config components all fit here.
+
+Two things to keep in mind:
+
+- **Use `~` paths, never absolute ones.** No `/Users/yourname/...` in committed files — it breaks the install for everyone else.
+- **Keep the installer non-destructive.** It should merge into `~/.claude/settings.json`, never overwrite keys it doesn't own.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
