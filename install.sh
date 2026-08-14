@@ -2,59 +2,96 @@
 
 set -e
 
-echo "🎵 Installing Claude Sounds Config..."
-
-# Create sounds directory
-mkdir -p ~/.claude/sounds
-
-# Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# Copy sound files
-echo "📁 Copying sound files..."
-cp "$SCRIPT_DIR"/*.wav ~/.claude/sounds/
-
-# Merge hooks into settings.json
-echo "⚙️  Merging hook configuration..."
-
 SETTINGS_FILE=~/.claude/settings.json
-HOOKS_FILE="$SCRIPT_DIR/hooks.json"
 
-# Create settings file if it doesn't exist
+INSTALL_SOUNDS=true
+INSTALL_STATUSLINE=true
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --sounds-only)
+      INSTALL_STATUSLINE=false
+      ;;
+    --statusline-only)
+      INSTALL_SOUNDS=false
+      ;;
+    -h|--help)
+      echo "Usage: install.sh [--sounds-only | --statusline-only]"
+      echo ""
+      echo "  (no flags)          Install sounds and the status line"
+      echo "  --sounds-only       Install only the sound hooks"
+      echo "  --statusline-only   Install only the status line"
+      exit 0
+      ;;
+    *)
+      echo "❌ Unknown option: $1"
+      echo "   Run 'install.sh --help' for usage."
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+echo "🎨 Installing Claude Code config..."
+
+mkdir -p ~/.claude
+
 if [ ! -f "$SETTINGS_FILE" ]; then
   echo "{}" > "$SETTINGS_FILE"
 fi
 
-# Merge hooks using Python (more reliable than jq)
+if [ "$INSTALL_SOUNDS" = true ]; then
+  echo "📁 Copying sound files..."
+  mkdir -p ~/.claude/sounds
+  cp "$SCRIPT_DIR"/*.wav ~/.claude/sounds/
+fi
+
+if [ "$INSTALL_STATUSLINE" = true ]; then
+  echo "📊 Copying status line script..."
+  cp "$SCRIPT_DIR/statusline.sh" ~/.claude/statusline.sh
+  chmod +x ~/.claude/statusline.sh
+
+  if ! command -v jq > /dev/null 2>&1; then
+    echo "⚠️  'jq' is not installed — the status line needs it to parse session data."
+    echo "   Install it with: brew install jq"
+  fi
+fi
+
+echo "⚙️  Merging configuration into settings.json..."
+
+SETTINGS_FILE="$SETTINGS_FILE" \
+HOOKS_FILE="$SCRIPT_DIR/hooks.json" \
+INSTALL_SOUNDS="$INSTALL_SOUNDS" \
+INSTALL_STATUSLINE="$INSTALL_STATUSLINE" \
 python3 << 'PYTHON_SCRIPT'
 import json
-import sys
 import os
 
-settings_file = os.path.expanduser("~/.claude/settings.json")
-hooks_file = sys.argv[1]
+settings_file = os.environ["SETTINGS_FILE"]
+hooks_file = os.environ["HOOKS_FILE"]
 
-# Read existing settings
-with open(settings_file, 'r') as f:
-  settings = json.load(f)
+with open(settings_file) as f:
+    settings = json.load(f)
 
-# Read new hooks
-with open(hooks_file, 'r') as f:
-  new_config = json.load(f)
+if os.environ["INSTALL_SOUNDS"] == "true":
+    with open(hooks_file) as f:
+        new_config = json.load(f)
+    settings.setdefault("hooks", {}).update(new_config["hooks"])
+    print("✅ Sound hooks merged")
 
-# Merge hooks
-if "hooks" not in settings:
-  settings["hooks"] = {}
+if os.environ["INSTALL_STATUSLINE"] == "true":
+    settings["statusLine"] = {
+        "type": "command",
+        "command": "~/.claude/statusline.sh",
+        "padding": 1,
+    }
+    print("✅ Status line configured")
 
-settings["hooks"].update(new_config["hooks"])
-
-# Write back
-with open(settings_file, 'w') as f:
-  json.dump(settings, f, indent=2)
-
-print("✅ Hooks merged successfully")
+with open(settings_file, "w") as f:
+    json.dump(settings, f, indent=2)
 PYTHON_SCRIPT
 
 echo ""
 echo "✨ Installation complete!"
-echo "🔊 Restart Claude Code to hear your new sounds."
+echo "🔄 Restart Claude Code to pick up your new setup."
